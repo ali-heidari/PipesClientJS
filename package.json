@@ -1,0 +1,25 @@
+{
+  "name": "pipes-client",
+  "version": "1.0.0",
+  "description": "Client node module to connect PipesHub.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ali-heidari/PipesClientJS.git"
+  },
+  "keywords": [
+    "pipeshub",
+    "microservice",
+    "communication",
+    "push"
+  ],
+  "author": "Ali Heidari",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ali-heidari/PipesClientJS/issues"
+  },
+  "homepage": "https://github.com/ali-heidari/PipesClientJS#readme"
+}

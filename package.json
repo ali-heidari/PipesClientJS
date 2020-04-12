@@ -17,7 +17,7 @@
     "push"
   ],
   "author": "Ali Heidari",
-  "license": "ISC",
+  "license": "GNU General Public License v3.0",
   "bugs": {
     "url": "https://github.com/ali-heidari/PipesClientJS/issues"
   },

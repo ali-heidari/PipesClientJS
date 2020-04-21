@@ -1,6 +1,5 @@
 const http = require('http');
 const socketIOClient = require('socket.io-client');
-const log = require('../services/logger')
 
 let __pipes__ = {};
 exports.a = __pipes__;
@@ -37,11 +36,15 @@ class Unit {
                 res.setEncoding('utf8');
                 res.on('data', (chunk) => token += chunk);
                 res.on('error', (err) => reject(err));
-                res.on('end', () => resolve(token));
+                res.on('end', () => {
+                    if (res.statusCode == 200)
+                        resolve(token)
+                    else
+                        reject(res.statusMessage);
+                });
             });
-            post_req.write('sec=aaaa');
+            post_req.write('name=guest');
             post_req.end();
-            log.l('c')
         });
     }
 
@@ -63,7 +66,7 @@ class Unit {
                 }
             });
             socket.on('gateway', function (data) {
-                log.l(data);
+                console.log(data);
                 if (data instanceof Object) {
                     if (data.receiverId !== __pipes__.name)
                         data.res = "I am not who you looking for :)";
@@ -73,7 +76,9 @@ class Unit {
                         socket.emit('responseGateway', data);
                 }
             });
-        }, (err) => log.e(err));
+        }, (err) => {
+            throw err;
+        });
     }
 
     /**

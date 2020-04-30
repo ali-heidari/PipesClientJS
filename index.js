@@ -1,6 +1,5 @@
 const http = require('http');
 const socketIOClient = require('socket.io-client');
-const log = require('../services/logger')
 
 class Unit {
 
@@ -67,7 +66,7 @@ class Unit {
             });
             let socket = this.socket;
             this.socket.on('gateway', function (data) {
-                log.l(data);
+                console.log(data);
                 if (data instanceof Object) {
                     if (data.receiverId !== __pipes__.name)
                         data.res = "I am not who you looking for :)";

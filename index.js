@@ -2,17 +2,15 @@ const http = require('http');
 const socketIOClient = require('socket.io-client');
 const log = require('../services/logger')
 
-let __pipes__ = {};
-exports.a = __pipes__;
-socket = null;
-
 class Unit {
 
     constructor(name) {
         if (name == undefined)
             throw new Error('Specify a name for this unit.')
         this.name = name;
-        __pipes__.name = name;
+        this.__pipes__ = {};
+        this.__pipes__.name = name;
+        this.socket = null;
 
         // Connect to hub
         this.establishConnection();
@@ -37,11 +35,15 @@ class Unit {
                 res.setEncoding('utf8');
                 res.on('data', (chunk) => token += chunk);
                 res.on('error', (err) => reject(err));
-                res.on('end', () => resolve(token));
+                res.on('end', () => {
+                    if (res.statusCode == 200)
+                        resolve(token)
+                    else
+                        reject(res.statusMessage);
+                });
             });
-            post_req.write('sec=aaaa');
+            post_req.write('name=guest');
             post_req.end();
-            log.l('c')
         });
     }
 
@@ -49,8 +51,9 @@ class Unit {
      * Connect to hub
      */
     establishConnection() {
+        let __pipes__ = this.__pipes__;
         return this.connect().then((res) => {
-            socket = socketIOClient('http://127.0.0.1:3000/', {
+            this.socket = socketIOClient('http://127.0.0.1:3000/', {
                 query: {
                     name: this.name
                 },
@@ -62,7 +65,8 @@ class Unit {
                     }
                 }
             });
-            socket.on('gateway', function (data) {
+            let socket = this.socket;
+            this.socket.on('gateway', function (data) {
                 log.l(data);
                 if (data instanceof Object) {
                     if (data.receiverId !== __pipes__.name)
@@ -73,7 +77,9 @@ class Unit {
                         socket.emit('responseGateway', data);
                 }
             });
-        }, (err) => log.e(err));
+        }, (err) => {
+            throw err;
+        });
     }
 
     /**
@@ -83,8 +89,9 @@ class Unit {
      * @param {*} input Input data receiver needs to run operation
      */
     ask(unitId, operation, input) {
+        let socket = this.socket;
         return new Promise((resolve, reject) => {
-            socket.emit('gateway', {
+            this.socket.emit('gateway', {
                 senderId: this.name,
                 receiverId: unitId,
                 operation: operation,
@@ -96,6 +103,7 @@ class Unit {
             });
         });
     }
+
     /**
      * Send a request to other unit and no result expected
      * @param {*} unitId The receiver unit id
@@ -103,7 +111,7 @@ class Unit {
      * @param {*} input Input data receiver needs to run operation
      */
     request(unitId, operation, input) {
-        socket.emit('gateway', {
+        this.socket.emit('gateway', {
             senderId: this.name,
             receiverId: unitId,
             operation: operation,
@@ -118,10 +126,10 @@ class Unit {
      * @param {*} handler Operation body
      */
     add(funcName, handler) {
-        if (__pipes__[funcName] != undefined) {
+        if (this.__pipes__[funcName] != undefined) {
             throw new Error('This function already exists.')
         }
-        __pipes__[funcName] = handler;
+        this.__pipes__[funcName] = handler;
     }
 }
 

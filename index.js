@@ -104,6 +104,26 @@ class Unit {
     }
 
     /**
+     * Send a request to other unit and delivers the result
+     * @param {*} unitId The receiver unit id
+     * @param {*} operation Id or name of operation on other side
+     * @param {*} input Input data receiver needs to run operation
+     * @param {*} onResponse Called while new data received
+     */
+    persist(unitId, operation, input, onResponse) {
+        this.socket.emit('gateway', {
+            senderId: this.name,
+            receiverId: unitId,
+            operation: operation,
+            input: input,
+            awaiting: true
+        });
+        this.socket.on('responseGateway', function (data) {
+            onResponse(data);
+        });
+    }
+    
+    /**
      * Send a request to other unit and no result expected
      * @param {*} unitId The receiver unit id
      * @param {*} operation Id or name of operation on other side
